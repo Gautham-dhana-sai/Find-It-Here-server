@@ -25,7 +25,7 @@ ItemRoutes.post('/api/add-item', multerUpload.single("file"), async (req, res) =
             city: Joi.string().required(),
             category: Joi.string().allow(null),
             brand: Joi.string().allow(null),
-            address: Joi.string().required().min(10),
+            address: Joi.string().required().min(6),
             pincode: Joi.string().required().length(6),
             uploadedBy: Joi.string().required()
         })
@@ -54,7 +54,7 @@ ItemRoutes.post('/api/add-item', multerUpload.single("file"), async (req, res) =
 
     } catch (error) {
         console.log(error, 'Error at adding item route')
-        return res.status(500).json(encrypt({message: error.message, success: false}))
+        return res.status(200).json(encrypt({message: error.message, success: false}))
     }
 })
 
