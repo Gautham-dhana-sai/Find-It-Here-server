@@ -6,10 +6,11 @@ const { multerUpload } = require("../library/multer")
 
 const Item = require("../models/items.model")
 const { uploadToS3 } = require("../library/s3")
+const { jwtAuth } = require("../library/auth")
 
 const ItemRoutes = express.Router()
 
-ItemRoutes.post('/api/add-item', multerUpload.single("file"), async (req, res) => {
+ItemRoutes.post('/api/add-item', jwtAuth, multerUpload.single("file"), async (req, res) => {
     try {
 
         if(!req.file){
