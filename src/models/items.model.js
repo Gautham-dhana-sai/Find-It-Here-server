@@ -12,7 +12,9 @@ const ItemSchema = new Schema({
     imageName: {type: String, required: true},
     address: {type: String, required: true},
     pincode: {type: String, required: true},
-    status: {type: Number}
+    status: {type: Number},
+    addedBy: {type: Schema.Types.ObjectId, required: true},
+    likes: {type: Number}
 }, { timestamps: true });
 
 const Item = mongoose.model("item", ItemSchema);
