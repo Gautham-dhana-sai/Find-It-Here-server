@@ -2,11 +2,12 @@ const express = require("express")
 const Joi = require('joi')
 
 const {encrypt} = require("../library/encryption")
-const { multerUpload } = require("../library/multer")
+const { uploadToS3 } = require("../library/s3")
+
+const { multerUpload } = require("../middlewares/multer")
+const { jwtAuth } = require("../middlewares/auth")
 
 const Item = require("../models/items.model")
-const { uploadToS3 } = require("../library/s3")
-const { jwtAuth } = require("../library/auth")
 
 const ItemRoutes = express.Router()
 
@@ -38,6 +39,8 @@ ItemRoutes.post('/api/add-item', jwtAuth, multerUpload.single("file"), async (re
         }
 
         body.imageName = body.itemName.replaceAll(' ', '_') + '_' + Date.now()
+        body.addedBy = req.user.UID
+        body.likes = 0
         const file = {
             mimetype: req.file.mimetype,
             filepath: 'items/' + body.imageName,

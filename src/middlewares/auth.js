@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { encrypt } = require("./encryption");
+const { encrypt } = require("../library/encryption");
 
 const jwtAuth = (req, res, next) => {
   try {
@@ -15,7 +15,7 @@ const jwtAuth = (req, res, next) => {
           .status(401)
           .json(encrypt({ auth: false, response: "Failed to Authenticate token" }));
         }
-        req.email = creds.email;
+        req.user = creds;
         next();
       });
     } catch (error) {

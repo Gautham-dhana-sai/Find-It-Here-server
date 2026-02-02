@@ -1,27 +1,22 @@
 const express = require("express")
-const { jwtAuth } = require("../library/auth")
-const { decrypt, encrypt } = require("../library/encryption")
 const Joi = require("joi")
-const Item = require("../models/items.model")
 const { Types } = require("mongoose")
+
+const { jwtAuth } = require("../middlewares/auth")
+
+const { decrypt, encrypt } = require("../library/encryption")
+
+const Item = require("../models/items.model")
 
 const ProfileRoutes = express.Router()
 
-ProfileRoutes.post('/api/profile/items/data', jwtAuth, async (req, res) => {
+ProfileRoutes.get('/api/profile/items/data', jwtAuth, async (req, res) => {
     try {
-        req.body = decrypt(req)
-        const schema = Joi.object({
-            user: Joi.string().length(24).required()
-        })
-
-        const {error, value: body } = schema.validate(req.body)
-        if(error) {
-            throw new Error(error)
-        }
-
+        console.log(req)
+        const { UID } = req.user
         const data = await Item.aggregate([
             {
-                $match: { addedBy: new Types.ObjectId(body.user) }
+                $match: { addedBy: new Types.ObjectId(UID) }
             }, {
                 $group: {
                     _id: '$addedBy',
@@ -30,6 +25,8 @@ ProfileRoutes.post('/api/profile/items/data', jwtAuth, async (req, res) => {
                 }
             }
         ])
+
+        console.log(UID, data)
 
         const response = {
             success: true,
