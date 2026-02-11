@@ -80,7 +80,10 @@ ItemRoutes.post('/api/get-items/paginate', async (req, res) => {
         req.body = decrypt(req)
         const schema = Joi.object({
             paginationCursor: Joi.string().required().allow(null),
-            limit: Joi.number().required()
+            limit: Joi.number().required(),
+            state: Joi.string().required().allow(null),
+            city: Joi.string().required().allow(null),
+            search: Joi.string().required().allow(null)
         })
         const {error, value: body} = schema.validate(req.body)
         if(error) {
@@ -89,6 +92,9 @@ ItemRoutes.post('/api/get-items/paginate', async (req, res) => {
 
         const conditions = {}
         if(body.paginationCursor) conditions._id = {$lt: body.paginationCursor}
+        if(body.state) conditions.state = body.state
+        if(body.city) conditions.city = body.city
+        if(body.search) conditions.itemName = {$regex: body.search, $options: 'i'}
 
         const items = await Item.find(conditions).sort({createdAt: -1}).limit(body.limit)
         const response = {
