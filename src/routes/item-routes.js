@@ -91,14 +91,16 @@ ItemRoutes.post('/api/get-items/paginate', async (req, res) => {
         }
 
         const conditions = {}
-        if(body.paginationCursor) conditions._id = {$lt: body.paginationCursor}
+        if(body.paginationCursor) conditions._id = {$lte: body.paginationCursor}
         if(body.state) conditions.state = body.state
         if(body.city) conditions.city = body.city
         if(body.search) conditions.itemName = {$regex: body.search, $options: 'i'}
 
-        const items = await Item.find(conditions).sort({createdAt: -1}).limit(body.limit)
+        const items = await Item.find(conditions).sort({createdAt: -1}).limit(body.limit + 1)
         const response = {
-            success: true, data: items
+            success: true, 
+            data: items.slice(0, body.limit), // return only the requested number of items
+            nextCursor: items.length > body.limit ? items[body.limit]._id : null
         }
         return res.status(200).json(encrypt(response))
     } catch (error) {
