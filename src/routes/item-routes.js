@@ -10,6 +10,7 @@ const { jwtAuth } = require("../middlewares/auth")
 const Item = require("../models/items.model")
 
 const path = require('path')
+const { Types } = require("mongoose")
 const ItemRoutes = express.Router()
 
 ItemRoutes.post('/api/add-item', jwtAuth, multerUpload.single("file"), async (req, res) => {
@@ -26,7 +27,7 @@ ItemRoutes.post('/api/add-item', jwtAuth, multerUpload.single("file"), async (re
             description: Joi.string().required(),
             state: Joi.string().required(),
             city: Joi.string().required(),
-            category: Joi.string().allow(null),
+            category: Joi.string().required(),
             brand: Joi.string().allow(null),
             address: Joi.string().required().min(6),
             pincode: Joi.string().required().length(6),
@@ -53,6 +54,8 @@ ItemRoutes.post('/api/add-item', jwtAuth, multerUpload.single("file"), async (re
         const filename = body.imageName + ext
         // store imageName with extension so later retrieval can use it directly
         body.imageName = filename
+        body.category = new Types.ObjectId(body.category)
+        body.brand = body.brand ? new Types.ObjectId(body.brand) : null
 
         const file = {
             mimetype: req.file.mimetype,
