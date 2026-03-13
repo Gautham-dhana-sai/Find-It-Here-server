@@ -99,7 +99,7 @@ ItemRoutes.post('/api/get-items/paginate', async (req, res) => {
         if(body.city) conditions.city = body.city
         if(body.search) conditions.itemName = {$regex: body.search, $options: 'i'}
 
-        const items = await Item.find(conditions).sort({createdAt: -1}).limit(body.limit + 1)
+        const items = await Item.find(conditions, {itemName: 1, imageName: 1, store: 1, description: 1}).sort({createdAt: -1}).limit(body.limit + 1)
         const response = {
             success: true, 
             data: items.slice(0, body.limit), // return only the requested number of items
@@ -109,6 +109,37 @@ ItemRoutes.post('/api/get-items/paginate', async (req, res) => {
     } catch (error) {
         console.log(error, 'Error at getting items paginated')
         return res.json(200).json(encrypt({success: false, data: []}))
+    }
+})
+
+ItemRoutes.post('/api/get-item-data', async (req, res) => {
+    const response = {
+        success: true,
+        data: {},
+        error: null
+    }
+    try {
+        req.body = decrypt(req)
+        const schema = Joi.object({
+            itemId: Joi.string().required()
+        })
+        const {error, value: body} = schema.validate(req.body)
+        if(error) {
+            throw new Error(error)
+        }
+
+        const item = await Item.findById(body.itemId).populate('category', 'name').populate('brand', 'name')
+        if(!item) {
+            throw new Error('Item not found')
+        }
+        response.data = item
+        return res.status(200).json(encrypt(response))
+
+    } catch(error) {
+        console.log(error, 'Error at get item data route')
+        response.success = false
+        response.error = error.message
+        return res.status(200).json(encrypt(response))
     }
 })
 
