@@ -13,6 +13,10 @@ const path = require('path')
 const { Types } = require("mongoose")
 const ItemRoutes = express.Router()
 
+ItemRoutes.get('/', async (req, res) => {
+    return res.json({message: 'Find It Here - Working!!'})
+})
+
 ItemRoutes.post('/api/add-item', jwtAuth, multerUpload.single("file"), async (req, res) => {
     try {
 
